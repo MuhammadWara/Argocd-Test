@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    reloader.stakater.com/auto: "true"
+  name: test-test-inventory-api-app
+  labels:
+    app: test-test-inventory-api-app
+spec:
+  selector:
+    matchLabels:
+      app: test-inventory-api-app
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: test-inventory-api-app
+      annotations:
+        proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+    spec:
+      containers:
+        - name: test-inventory-api
+          image: us-central1-docker.pkg.dev/bcg-prj-sha-ss-tools-gl-01/inventory-docker/logical-inventory-api:test-5ef844566b75f789b35821bf30307e056ca642aa
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              cpu: 500m
+              memory: 1024Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          env:
+            - name: lin.mongodb.uri
+              valueFrom:
+                secretKeyRef:
+                  name: test-logical-inventory-api
+                  key: lin_mongodb_uri
+            - name: lin.onera.apikey
+              valueFrom:
+                secretKeyRef:
+                  name: test-logical-inventory-api
+                  key: lin_onera_apikey
+            - name: lin.onera.authorization
+              valueFrom:
+                secretKeyRef:
+                  name: test-logical-inventory-api
+                  key: lin_onera_authorization
+            - name: PROFILE
+              valueFrom:
+                configMapKeyRef:
+                  name: test-logical-inventory-api-map
+                  key: PROFILE

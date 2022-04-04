@@ -1,0 +1,17 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  labels:
+    app: test-inventory-api
+  name: test-inventory-api
+spec:
+  selector:
+    app: istio-ingressgateway
+    istio: ingressgateway            
+  servers:
+    - hosts:
+        - logical-inventory-test.gcp.bcinfra.net   
+      port:
+        name: http                   
+        number: 80
+        protocol: HTTP
